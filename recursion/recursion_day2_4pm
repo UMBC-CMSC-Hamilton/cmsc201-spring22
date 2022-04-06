@@ -1,0 +1,138 @@
+"""
+    What is recursion?
+        A function which calls itself (at least once, can be multiple times per run)
+        
+    Linear Recursion - Function calls itself just once (or zero times)
+    Branching Recursion - Recursion that calls itself multiple times.
+
+"""
+
+
+def factorial(n):
+    # linear recursion
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n - 1)
+
+
+def fibonacci(n):
+    # branching recursion (there are two branches from each function call)
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
+
+"""
+    Also the A's and B's examples
+"""
+
+
+def list_depth(the_list):
+    # branching recursion because the recursive call is in a loop
+    # if not the_list: # the_list == []
+    #    return 0
+    max_depth = 0
+    for x in the_list:
+        new_depth = list_depth(x)
+        if new_depth > max_depth:
+            max_depth = new_depth
+    print(the_list, 1 + max_depth)
+    
+    return 1 + max_depth
+
+
+print(list_depth([[], [[[], []], []]]))
+print(list_depth([[[[[[[[[[[]]]]]]]]]]]))
+
+"""
+    Go in all four directions
+        1) when we're not blocked
+        2) when it's not off the board
+        3) when we haven't been there before
+    Stop When:
+        1) Find the gold
+        2) when we get stuck
+"""
+
+import random
+
+PASSABLE = "_"
+BLOCKED = "*"
+THE_GOLD = "G"
+VISITED = 'v'
+
+def make_board(rows, cols):
+    the_board = []
+    for i in range(rows):
+        new_row = []
+        for j in range(cols):
+            new_row.append(random.choices([PASSABLE, BLOCKED], weights=[7, 3])[0])
+        the_board.append(new_row)
+    
+    y_pos = random.randint(0, rows - 1)
+    x_pos = random.randint(0, cols - 1)
+    the_board[y_pos][x_pos] = THE_GOLD
+    the_board[0][0] = PASSABLE
+    
+    return the_board
+
+
+def display_board(the_board):
+    for row in the_board:
+        for x in row:
+            print(x.rjust(4), end="")
+        print()
+
+def find_the_goal(current_pos, the_board, step):
+
+    # current_pos = [y, x]
+    y, x = current_pos
+    if the_board[y][x] == THE_GOLD:
+        return True
+    
+    if the_board[y][x] != PASSABLE:
+        return False
+    
+    the_board[y][x] = str(step)
+    print(current_pos)
+    display_board(the_board)
+    input(">>")
+    
+    # travel in all four directions
+    # four different recursive calls
+    # up
+    go_up = False
+    go_right = False
+    go_down = False
+    go_left = False
+    if y > 0:
+        go_up = find_the_goal([y - 1, x], the_board, step + 1)
+        if go_up:
+            return True
+    # right
+    if x + 1 < len(the_board[y]):
+        go_right = find_the_goal([y, x + 1], the_board, step + 1)
+        if go_right:
+            return True
+    # down
+    if y + 1 < len(the_board):
+        go_down = find_the_goal([y + 1, x], the_board, step + 1)
+        if go_down:
+            return True
+    # left
+    if x > 0:
+        go_left = find_the_goal([y, x - 1], the_board, step + 1)
+        if go_left:
+            return True
+    
+    return False
+
+    
+
+my_board = make_board(10, 12)
+display_board(my_board)
+print(find_the_goal([0, 0], my_board, 1))
+display_board(my_board)
+
